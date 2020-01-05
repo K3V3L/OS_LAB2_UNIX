@@ -1,16 +1,12 @@
 #include <algorithm>
-#include <cctype>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <dirent.h>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <sys/sysinfo.h>
 #include <unistd.h>
 #include <vector>
+
 const long minute = 60;
 const long hour = minute * 60;
 const long day = hour * 24;
@@ -125,13 +121,13 @@ process getProcInfo(char pID[256]) {
   return proc;
 }
 
-bool sortByName(const process &a, const process &b)
-  {return a.command < b.command;}
-bool sortByPID(const process &a, const process &b)
-{return a.procID < b.procID;}
-bool sortByCPU(const process &a, const process &b)
-{return a.cpu < b.cpu;}
-
+bool sortByName(const process &a, const process &b) {
+  return a.command < b.command;
+}
+bool sortByPID(const process &a, const process &b) {
+  return a.procID < b.procID;
+}
+bool sortByCPU(const process &a, const process &b) { return a.cpu < b.cpu; }
 
 class processTable {
 public:
@@ -152,8 +148,7 @@ public:
     }
   }
   void print(sorttype sort) {
-    switch (sort)
-    {
+    switch (sort) {
     case name:
       std::sort(processes.begin(), processes.end(), sortByName);
       break;
@@ -166,8 +161,6 @@ public:
     default:
       break;
     }
-
-
 
     for (auto process : processes) {
       std::cout << std::setw(5) << process.procID << std::setw(10)
@@ -193,6 +186,12 @@ private:
 int main(int argc, const char *argv[]) {
   sorttype sort;
   if (argc == 2) {
+    if (std::string(argv[1]) == std::string("-h")) {
+      std::cout << "Usage:" << std::endl
+                << "main [sort] [timeout]" << std::endl;
+      return 0;
+    }
+
     argv[1];
     std::string mstr = std::string(argv[1]);
     std::cout << mstr;
@@ -204,8 +203,8 @@ int main(int argc, const char *argv[]) {
       sort = pid;
   }
 
-  
-  int period = 1;
+  int period = atoi(argv[2]);
+
   system("clear");
   memory mem;
   mem.printInfo();
@@ -214,7 +213,7 @@ int main(int argc, const char *argv[]) {
   processes.printHeader();
   processes.print(sort);
   int refresh;
-  while (0) {
+  while (period) {
     system("clear");
     mem.refresh();
     mem.printInfo();
@@ -224,6 +223,5 @@ int main(int argc, const char *argv[]) {
 
     sleep(period);
   }
-  
   return 0;
 }
